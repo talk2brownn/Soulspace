@@ -1,0 +1,216 @@
+.stories {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a0a1a 100%);
+  padding: 40px 20px;
+  color: white;
+}
+
+.stories-header {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.stories-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  background: linear-gradient(to right, #f9a8d4, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.stories-header p {
+  color: rgba(255,255,255,0.6);
+  font-size: 1rem;
+}
+
+.stories-content {
+  max-width: 700px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.mood-selector {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.mood-selector h3 {
+  color: white;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.mood-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.mood-option {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 12px 8px;
+  cursor: pointer;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.3s;
+}
+
+.mood-option:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: #c084fc;
+}
+
+.mood-option.active {
+  background: rgba(192,132,252,0.2);
+  border-color: #c084fc;
+  box-shadow: 0 0 15px rgba(192,132,252,0.3);
+}
+
+.mood-option span:first-child {
+  font-size: 1.8rem;
+}
+
+.generate-btn {
+  background: linear-gradient(to right, #f9a8d4, #c084fc);
+  color: white;
+  border: none;
+  padding: 14px 35px;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  transition: opacity 0.3s;
+}
+
+.generate-btn:hover {
+  opacity: 0.9;
+}
+
+/* LOADING */
+.story-loading {
+  text-align: center;
+  padding: 40px;
+}
+
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.loading-dots span {
+  width: 12px;
+  height: 12px;
+  background: #c084fc;
+  border-radius: 50%;
+  animation: dotPulse 1.4s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.story-loading p {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.95rem;
+}
+
+/* STORY CARD */
+.story-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(192,132,252,0.3);
+  border-radius: 20px;
+  padding: 35px;
+  animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.story-mood-tag {
+  background: rgba(192,132,252,0.2);
+  border: 1px solid rgba(192,132,252,0.3);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  color: #c084fc;
+  display: inline-block;
+  margin-bottom: 25px;
+}
+
+.story-text p {
+  color: rgba(255,255,255,0.85);
+  line-height: 1.9;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+}
+
+.new-story-btn {
+  background: transparent;
+  border: 1px solid rgba(192,132,252,0.4);
+  color: #c084fc;
+  padding: 10px 25px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  transition: all 0.3s;
+}
+
+.new-story-btn:hover {
+  background: rgba(192,132,252,0.1);
+}
+
+@media (max-width: 600px) {
+  .mood-options { grid-template-columns: repeat(2, 1fr); }
+  .stories-header h1 { font-size: 1.8rem; }
+} 
+
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.video-background video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.3;
+}
+
+

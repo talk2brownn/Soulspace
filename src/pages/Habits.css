@@ -1,0 +1,157 @@
+.habits {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a1a0a 0%, #0a2a0a 50%, #0a1a0a 100%);
+  padding: 40px 20px;
+  color: white;
+}
+
+.habits-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.habits-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  background: linear-gradient(to right, #00ff88, #00cc66);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.habits-header p {
+  color: rgba(255,255,255,0.6);
+  font-size: 1rem;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.tab {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  padding: 12px 25px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.tab:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.tab.active {
+  background: linear-gradient(to right, #00ff88, #00cc66);
+  color: #0a1a0a;
+  border-color: transparent;
+  font-weight: 700;
+}
+
+/* HABITS GRID */
+.habits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  max-width: 800px;
+  margin: 0 auto 30px;
+}
+
+.habit-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 15px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.habit-card:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: #00ff88;
+  transform: translateY(-2px);
+}
+
+.habit-card.completed {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: #00ff88;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+.habit-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.habit-info {
+  flex: 1;
+}
+
+.habit-info h3 {
+  font-size: 0.95rem;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.difficulty {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.habit-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.streak {
+  font-size: 0.75rem;
+  color: #FFD700;
+  font-weight: 600;
+}
+
+.check {
+  font-size: 1.5rem;
+  transition: transform 0.3s;
+}
+
+.check.checked {
+  transform: scale(1.2);
+}
+
+/* MILESTONE */
+.milestone {
+  background: linear-gradient(to right, #FFD700, #FF8C00);
+  color: #1a1a00;
+  padding: 20px 30px;
+  border-radius: 15px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@media (max-width: 600px) {
+  .habits-grid { grid-template-columns: 1fr; }
+  .tabs { flex-direction: column; align-items: center; }
+}

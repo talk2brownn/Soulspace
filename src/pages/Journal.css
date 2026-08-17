@@ -1,0 +1,300 @@
+.journal {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+  padding: 40px 20px;
+  color: white;
+}
+
+.journal-header {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.journal-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  background: linear-gradient(to right, #a78bfa, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.journal-header p {
+  color: rgba(255,255,255,0.6);
+  font-size: 1rem;
+}
+
+.journal-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* WRITE SECTION */
+.write-section {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 25px;
+}
+
+.write-section h3 {
+  color: #a78bfa;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.title-input {
+  width: 100%;
+  padding: 12px 15px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+  outline: none;
+  transition: border 0.3s;
+}
+
+.title-input:focus {
+  border-color: #a78bfa;
+}
+
+.title-input::placeholder {
+  color: rgba(255,255,255,0.3);
+}
+
+.entry-input {
+  width: 100%;
+  padding: 15px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  resize: none;
+  outline: none;
+  margin-bottom: 15px;
+  line-height: 1.8;
+  transition: border 0.3s;
+}
+
+.entry-input:focus {
+  border-color: #a78bfa;
+}
+
+.entry-input::placeholder {
+  color: rgba(255,255,255,0.3);
+}
+
+.save-entry-btn {
+  width: 100%;
+  background: linear-gradient(to right, #a78bfa, #60a5fa);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  transition: opacity 0.3s;
+}
+
+.save-entry-btn:hover {
+  opacity: 0.9;
+}
+
+.saved-msg {
+  color: #00ff88;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+/* ENTRIES SECTION */
+.entries-section {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 25px;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.entries-section h3 {
+  color: #a78bfa;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.no-entries {
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  margin-top: 30px;
+  font-size: 0.9rem;
+}
+
+.entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.entry-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.entry-card:hover {
+  border-color: #a78bfa;
+  background: rgba(167,139,250,0.1);
+}
+
+.entry-card.active {
+  border-color: #a78bfa;
+  background: rgba(167,139,250,0.15);
+}
+
+.entry-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.entry-card-header h4 {
+  color: white;
+  font-size: 0.95rem;
+}
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+  padding: 2px 6px;
+}
+
+.delete-btn:hover {
+  color: #f85149;
+}
+
+.entry-preview {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.entry-date {
+  color: rgba(255,255,255,0.3);
+  font-size: 0.75rem;
+}
+
+/* MODAL */
+.entry-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.entry-modal {
+  background: #1a1a2e;
+  border: 1px solid rgba(167,139,250,0.3);
+  border-radius: 20px;
+  padding: 35px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.close-modal {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.entry-modal h2 {
+  color: #a78bfa;
+  margin-bottom: 8px;
+  font-size: 1.5rem;
+}
+
+.modal-date {
+  color: rgba(255,255,255,0.4);
+  font-size: 0.8rem;
+  margin-bottom: 20px;
+}
+
+.modal-content {
+  color: rgba(255,255,255,0.8);
+  line-height: 1.9;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 768px) {
+  .journal-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.video-background video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.3;
+}
