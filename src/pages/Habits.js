@@ -21,7 +21,6 @@ const goodHabits = [
 
 function Habits() {
   const [habits, setHabits] = useState({});
-  const [customHabit, setCustomHabit] = useState('');
   const [activeTab, setActiveTab] = useState('break');
 
   useEffect(() => {
