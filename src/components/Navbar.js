@@ -29,6 +29,9 @@ function Navbar() {
               {link.label}
             </NavLink>
           ))}
+      </div>
+      {/* Kept outside the scrolling link row so it's always on screen. */}
+      <div className="nav-actions">
         <NavLink to="/support" className="nav-support">💙 Get help</NavLink>
         {mode === 'cloud' && (
           <button className="nav-signout" onClick={signOut}>Sign out</button>
