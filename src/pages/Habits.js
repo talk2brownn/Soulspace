@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import './Habits.css';
+import { listHabitLog, setHabitDone } from '../lib/store';
+import { toDay, computeStreak } from '../lib/dates';
 
 const badHabits = [
   { id: 1, name: 'Smoking', icon: '🚬', difficulty: 'Hard' },
@@ -20,45 +22,54 @@ const goodHabits = [
 ];
 
 function Habits() {
-  const [habits, setHabits] = useState({});
+  // log: [{ habitId, day: 'YYYY-MM-DD' }]
+  const [log, setLog] = useState([]);
   const [activeTab, setActiveTab] = useState('break');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const savedHabits = JSON.parse(localStorage.getItem('habits') || '{}');
-    setHabits(savedHabits);
+    let active = true;
+    listHabitLog()
+      .then((rows) => active && setLog(rows))
+      .catch(() => active && setError("We couldn't load your habits. Check your connection."));
+    return () => {
+      active = false;
+    };
   }, []);
 
-  function toggleHabit(habitId) {
-    const today = new Date().toDateString();
-    const key = `${habitId}-${today}`;
-    const updatedHabits = { ...habits };
+  // Days completed per habit, e.g. { 7: Set(['2026-11-04', '2026-11-05']) }
+  const daysByHabit = useMemo(() => {
+    const map = {};
+    log.forEach(({ habitId, day }) => {
+      if (!map[habitId]) map[habitId] = new Set();
+      map[habitId].add(day);
+    });
+    return map;
+  }, [log]);
 
-    if (updatedHabits[key]) {
-      delete updatedHabits[key];
-    } else {
-      updatedHabits[key] = true;
-      // Calculate streak
-      let streak = 1;
-      let checkDate = new Date();
-      checkDate.setDate(checkDate.getDate() - 1);
-      while (updatedHabits[`${habitId}-${checkDate.toDateString()}`]) {
-        streak++;
-        checkDate.setDate(checkDate.getDate() - 1);
-      }
-      updatedHabits[`${habitId}-streak`] = streak;
-    }
-
-    setHabits(updatedHabits);
-    localStorage.setItem('habits', JSON.stringify(updatedHabits));
-  }
+  const today = toDay();
 
   function isCompletedToday(habitId) {
-    const today = new Date().toDateString();
-    return habits[`${habitId}-${today}`];
+    return Boolean(daysByHabit[habitId]?.has(today));
   }
 
+  // Calculated fresh from the log every time, so a missed day resets it.
   function getStreak(habitId) {
-    return habits[`${habitId}-streak`] || 0;
+    return daysByHabit[habitId] ? computeStreak(daysByHabit[habitId], today) : 0;
+  }
+
+  async function toggleHabit(habitId) {
+    const done = !isCompletedToday(habitId);
+    const previous = log;
+    // Update the screen straight away, then save; undo if saving fails.
+    setLog(done ? [...log, { habitId, day: today }] : log.filter((r) => !(r.habitId === habitId && r.day === today)));
+    try {
+      setError('');
+      await setHabitDone(habitId, done, today);
+    } catch {
+      setLog(previous);
+      setError("That didn't save. Please check your connection and try again.");
+    }
   }
 
   function getDifficultyColor(difficulty) {
@@ -98,8 +109,17 @@ function Habits() {
         {currentHabits.map((habit) => (
           <div
             key={habit.id}
+            role="button"
+            tabIndex={0}
             className={`habit-card ${isCompletedToday(habit.id) ? 'completed' : ''}`}
             onClick={() => toggleHabit(habit.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleHabit(habit.id);
+              }
+            }}
+            aria-pressed={isCompletedToday(habit.id)}
           >
             <div className="habit-icon">{habit.icon}</div>
             <div className="habit-info">
@@ -125,8 +145,10 @@ function Habits() {
         ))}
       </div>
 
-      {/* Milestone messages */}
-      {Object.values(habits).some(v => v === 7) && (
+      {error && <p className="load-error" role="alert">{error}</p>}
+
+      {/* Milestone: any habit on a 7+ day streak */}
+      {[...badHabits, ...goodHabits].some((h) => getStreak(h.id) >= 7) && (
         <div className="milestone">
           🏆 BOSS BATTLE WON! 7 Day Streak! You're incredible!
         </div>

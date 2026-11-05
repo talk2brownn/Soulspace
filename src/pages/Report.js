@@ -1,6 +1,15 @@
-import ReportVideo from '../Report.mp4';
 import { useState, useEffect } from 'react';
 import './Report.css';
+import reportVideo from '../media/Report.mp4';
+import reportPoster from '../media/Report-poster.jpg';
+import BackgroundVideo from '../components/BackgroundVideo';
+import { listMoods, listJournal, listHabitLog } from '../lib/store';
+import { toDay, shiftDay } from '../lib/dates';
+
+const formatDay = (day) => {
+  const [y, m, d] = day.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+};
 
 function Report() {
   const [moodHistory, setMoodHistory] = useState([]);
@@ -9,26 +18,35 @@ function Report() {
   const [topMood, setTopMood] = useState(null);
   const [weeklyInsight, setWeeklyInsight] = useState('');
 
+  const [error, setError] = useState('');
+
   useEffect(() => {
-    const moods = JSON.parse(localStorage.getItem('mood-history') || '[]');
-    const journals = JSON.parse(localStorage.getItem('journal-entries') || '[]');
-    const habits = JSON.parse(localStorage.getItem('habits') || '{}');
-    const habitCompletions = Object.keys(habits).filter(k => !k.includes('streak')).length;
+    let active = true;
+    const weekStart = shiftDay(toDay(), -6); // today plus the 6 days before it
+    Promise.all([listMoods(), listJournal(), listHabitLog()])
+      .then(([moods, journals, habitLog]) => {
+        if (!active) return;
+        const weekMoods = moods.filter((m) => m.day >= weekStart);
+        const weekHabits = habitLog.filter((h) => h.day >= weekStart);
 
-    setMoodHistory(moods.slice(-7));
-    setJournalCount(journals.length);
-    setHabitCount(habitCompletions);
+        setMoodHistory(weekMoods);
+        setJournalCount(journals.length);
+        setHabitCount(weekHabits.length);
 
-    if (moods.length > 0) {
-      const moodCounts = {};
-      moods.forEach(m => {
-        moodCounts[m.mood.label] = (moodCounts[m.mood.label] || 0) + 1;
-      });
-      const top = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0];
-      setTopMood({ label: top[0], count: top[1] });
-    }
-
-    generateInsight(moods, journals.length, habitCompletions);
+        if (weekMoods.length > 0) {
+          const moodCounts = {};
+          weekMoods.forEach((m) => {
+            moodCounts[m.mood.label] = (moodCounts[m.mood.label] || 0) + 1;
+          });
+          const top = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0];
+          setTopMood({ label: top[0], count: top[1] });
+        }
+        generateInsight(weekMoods, journals.length, weekHabits.length);
+      })
+      .catch(() => active && setError("We couldn't load your report. Check your connection."));
+    return () => {
+      active = false;
+    };
   }, []);
 
   function generateInsight(moods, journals, habits) {
@@ -53,33 +71,31 @@ function Report() {
         <p>Your journey in numbers and insights 💙</p>
       </div>
 
-      <div className="video-background">
-  <video autoPlay loop muted playsInline>
-    <source src={ReportVideo} type="video/mp4" />
-  </video>
-</div>
+      <BackgroundVideo src={reportVideo} poster={reportPoster} />
+
+      {error && <p className="load-error" role="alert">{error}</p>}
 
       {/* Summary cards */}
       <div className="summary-grid">
         <div className="summary-card">
           <span className="summary-icon">🌊</span>
           <h3>{moodHistory.length}</h3>
-          <p>Mood Check-ins</p>
+          <p>Check-ins this week</p>
         </div>
         <div className="summary-card">
           <span className="summary-icon">📝</span>
           <h3>{journalCount}</h3>
-          <p>Journal Entries</p>
+          <p>Journal entries (all time)</p>
         </div>
         <div className="summary-card">
           <span className="summary-icon">🎯</span>
           <h3>{habitCount}</h3>
-          <p>Habits Completed</p>
+          <p>Habits done this week</p>
         </div>
         <div className="summary-card">
           <span className="summary-icon">⭐</span>
           <h3>{topMood ? topMood.label : 'N/A'}</h3>
-          <p>Most Felt Mood</p>
+          <p>Most felt this week</p>
         </div>
       </div>
 
@@ -91,17 +107,17 @@ function Report() {
 
       {/* Mood history */}
       <div className="mood-history">
-        <h3>Recent Mood Journey</h3>
+        <h3>This Week's Mood Journey</h3>
         {moodHistory.length === 0 ? (
           <p className="no-data">No mood entries yet — start checking in! 🌊</p>
         ) : (
           <div className="mood-timeline">
-            {moodHistory.map((entry, i) => (
-              <div key={i} className="timeline-item">
+            {moodHistory.map((entry) => (
+              <div key={entry.day} className="timeline-item">
                 <span className="timeline-emoji">{entry.mood.emoji}</span>
                 <div className="timeline-info">
                   <p className="timeline-mood">{entry.mood.label}</p>
-                  <p className="timeline-date">{entry.date}</p>
+                  <p className="timeline-date">{formatDay(entry.day)}</p>
                   {entry.note && <p className="timeline-note">"{entry.note}"</p>}
                 </div>
               </div>

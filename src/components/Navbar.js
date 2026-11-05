@@ -1,23 +1,38 @@
-import { Link, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { useAuth } from '../lib/auth';
 import './Navbar.css';
 
+const links = [
+  { to: '/', label: '🌊 Mood' },
+  { to: '/journal', label: '📝 Journal' },
+  { to: '/habits', label: '🎯 Habits' },
+  { to: '/stories', label: '📖 Stories' },
+  { to: '/chat', label: '💬 Companion' },
+  { to: '/garden', label: '🌱 Garden' },
+  { to: '/report', label: '📊 Report' },
+];
+
 function Navbar() {
-  const location = useLocation();
+  const { mode, signOut } = useAuth();
+  const signedOut = mode === 'signedOut';
 
   return (
-    <nav className="navbar">
+    <nav className="navbar" aria-label="Main">
       <div className="logo">
-        <span className="logo-icon">🌌</span>
+        <span className="logo-icon" aria-hidden="true">🌌</span>
         <span className="logo-text">SoulSpace</span>
       </div>
       <div className="nav-links">
-        <Link to="/" className={location.pathname === '/' ? 'active' : ''}>🌊 Mood</Link>
-        <Link to="/journal" className={location.pathname === '/journal' ? 'active' : ''}>📝 Journal</Link>
-        <Link to="/habits" className={location.pathname === '/habits' ? 'active' : ''}>🎯 Habits</Link>
-        <Link to="/stories" className={location.pathname === '/stories' ? 'active' : ''}>📖 Stories</Link>
-        <Link to="/chat" className={location.pathname === '/chat' ? 'active' : ''}>🧠 AI Chat</Link>
-        <Link to="/garden" className={location.pathname === '/garden' ? 'active' : ''}>🌱 Garden</Link>
-        <Link to="/report" className={location.pathname === '/report' ? 'active' : ''}>📊 Report</Link>
+        {!signedOut &&
+          links.map((link) => (
+            <NavLink key={link.to} to={link.to} end={link.to === '/'}>
+              {link.label}
+            </NavLink>
+          ))}
+        <NavLink to="/support" className="nav-support">💙 Get help</NavLink>
+        {mode === 'cloud' && (
+          <button className="nav-signout" onClick={signOut}>Sign out</button>
+        )}
       </div>
     </nav>
   );

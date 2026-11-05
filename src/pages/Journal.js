@@ -1,6 +1,11 @@
-import JournalVideo from '../Journal.mp4';
 import { useState, useEffect } from 'react';
 import './Journal.css';
+import journalVideo from '../media/Journal.mp4';
+import journalPoster from '../media/Journal-poster.jpg';
+import BackgroundVideo from '../components/BackgroundVideo';
+import CrisisCard from '../components/CrisisCard';
+import { listJournal, addJournal, deleteJournal } from '../lib/store';
+import { detectCrisis } from '../lib/safety';
 
 function Journal() {
   const [entry, setEntry] = useState('');
@@ -8,38 +13,48 @@ function Journal() {
   const [entries, setEntries] = useState([]);
   const [saved, setSaved] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState(null);
+  const [showSupport, setShowSupport] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const savedEntries = JSON.parse(localStorage.getItem('journal-entries') || '[]');
-    setEntries(savedEntries);
+    let active = true;
+    listJournal()
+      .then((list) => active && setEntries(list))
+      .catch(() => active && setError("We couldn't load your entries. Check your connection."));
+    return () => {
+      active = false;
+    };
   }, []);
 
-  function saveEntry() {
-    if (entry.trim() === '') return;
-
-    const newEntry = {
-      id: Date.now(),
-      title: title || 'Untitled Entry',
-      content: entry,
-      date: new Date().toLocaleDateString(),
-      time: new Date().toLocaleTimeString(),
-    };
-
-    const updatedEntries = [newEntry, ...entries];
-    setEntries(updatedEntries);
-    localStorage.setItem('journal-entries', JSON.stringify(updatedEntries));
-
-    setEntry('');
-    setTitle('');
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  async function saveEntry() {
+    if (entry.trim() === '' || busy) return;
+    setBusy(true);
+    setError('');
+    try {
+      const created = await addJournal({ title: title.trim() || 'Untitled Entry', content: entry });
+      setEntries((prev) => [created, ...prev]);
+      setShowSupport(detectCrisis(`${title} ${entry}`));
+      setEntry('');
+      setTitle('');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setError("Your entry didn't save. Your text is still here, so you can try again.");
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function deleteEntry(id) {
-    const updatedEntries = entries.filter(e => e.id !== id);
-    setEntries(updatedEntries);
-    localStorage.setItem('journal-entries', JSON.stringify(updatedEntries));
-    if (selectedEntry?.id === id) setSelectedEntry(null);
+  async function removeEntry(id) {
+    if (!window.confirm('Delete this entry? This cannot be undone.')) return;
+    try {
+      await deleteJournal(id);
+      setEntries((prev) => prev.filter((e) => e.id !== id));
+      if (selectedEntry?.id === id) setSelectedEntry(null);
+    } catch {
+      setError("That entry couldn't be deleted. Please try again.");
+    }
   }
 
   return (
@@ -49,11 +64,7 @@ function Journal() {
         <p>Your safe space to express yourself freely</p>
       </div>
 
-   <div className="video-background">
-     <video autoPlay loop muted playsInline>
-     <source src={JournalVideo} type="video/mp4" />
-     </video>
-    </div>
+      <BackgroundVideo src={journalVideo} poster={journalPoster} />
 
       <div className="journal-layout">
         {/* Write new entry */}
@@ -73,10 +84,12 @@ function Journal() {
             rows={10}
             className="entry-input"
           />
-          <button className="save-entry-btn" onClick={saveEntry}>
-            Save Entry 💙
+          <button className="save-entry-btn" onClick={saveEntry} disabled={busy}>
+            {busy ? 'Saving…' : 'Save Entry 💙'}
           </button>
           {saved && <p className="saved-msg">✅ Entry saved!</p>}
+          {error && <p className="load-error" role="alert">{error}</p>}
+          {showSupport && <CrisisCard compact />}
         </div>
 
         {/* Previous entries */}
@@ -96,10 +109,13 @@ function Journal() {
                   <h4>{e.title}</h4>
                   <button
                     className="delete-btn"
-                    onClick={(ev) => { ev.stopPropagation(); deleteEntry(e.id); }}
+                    onClick={(ev) => { ev.stopPropagation(); removeEntry(e.id); }}
+                    aria-label={`Delete ${e.title}`}
                   >✕</button>
                 </div>
-                <p className="entry-preview">{e.content.substring(0, 80)}...</p>
+                <p className="entry-preview">
+                  {e.content.length > 80 ? `${e.content.substring(0, 80)}…` : e.content}
+                </p>
                 <span className="entry-date">{e.date} at {e.time}</span>
               </div>
             ))}

@@ -19,3 +19,27 @@ body {
 .main-content {
   flex: 1;
 }
+.app-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050b1c;
+  color: #cfe8ff;
+  font-size: 1rem;
+}
+
+.sync-banner {
+  background: rgba(255, 200, 120, 0.15);
+  border-bottom: 1px solid rgba(255, 200, 120, 0.4);
+  color: #ffe3b8;
+  padding: 10px 20px;
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.load-error {
+  color: #ffb4b4;
+  text-align: center;
+  margin: 12px 0;
+}

@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import './Garden.css';
-import gardenVideo from '../Garden.mp4';
+import gardenVideo from '../media/Garden.mp4';
+import gardenPoster from '../media/Garden-poster.jpg';
+import BackgroundVideo from '../components/BackgroundVideo';
+import { listMoods, listJournal, listHabitLog } from '../lib/store';
 
 function Garden() {
   const [growthLevel, setGrowthLevel] = useState(0);
@@ -9,33 +12,32 @@ function Garden() {
   const [moodCount, setMoodCount] = useState(0);
   const [plants, setPlants] = useState([]);
 
+  const [error, setError] = useState('');
+
   useEffect(() => {
-    // Count journal entries
-    const journals = JSON.parse(localStorage.getItem('journal-entries') || '[]');
-    setJournalCount(journals.length);
+    let active = true;
+    Promise.all([listJournal(), listMoods(), listHabitLog()])
+      .then(([journals, moods, habitLog]) => {
+        if (!active) return;
+        setJournalCount(journals.length);
+        setMoodCount(moods.length);
+        setHabitCount(habitLog.length);
 
-    // Count mood entries
-    const moods = JSON.parse(localStorage.getItem('mood-history') || '[]');
-    setMoodCount(moods.length);
-
-    // Count habit completions
-    const habits = JSON.parse(localStorage.getItem('habits') || '{}');
-    const habitCompletions = Object.keys(habits).filter(k => !k.includes('streak')).length;
-    setHabitCount(habitCompletions);
-
-    // Calculate growth level
-    const totalActivity = journals.length + moods.length + habitCompletions;
-    let level = 0;
-    if (totalActivity >= 1) level = 1;
-    if (totalActivity >= 5) level = 2;
-    if (totalActivity >= 10) level = 3;
-    if (totalActivity >= 20) level = 4;
-    if (totalActivity >= 35) level = 5;
-    if (totalActivity >= 50) level = 6;
-    setGrowthLevel(level);
-
-    // Generate plants based on level
-    generatePlants(level, totalActivity);
+        const totalActivity = journals.length + moods.length + habitLog.length;
+        let level = 0;
+        if (totalActivity >= 1) level = 1;
+        if (totalActivity >= 5) level = 2;
+        if (totalActivity >= 10) level = 3;
+        if (totalActivity >= 20) level = 4;
+        if (totalActivity >= 35) level = 5;
+        if (totalActivity >= 50) level = 6;
+        setGrowthLevel(level);
+        generatePlants(level, totalActivity);
+      })
+      .catch(() => active && setError("We couldn't load your garden. Check your connection."));
+    return () => {
+      active = false;
+    };
   }, []);
 
   function generatePlants(level, total) {
@@ -78,11 +80,9 @@ function Garden() {
         <div className="cloud cloud-3">⛅</div>
       </div>
 
-      <div className="video-background">
-  <video autoPlay muted loop playsInline>
-    <source src={gardenVideo} type="video/mp4" />
-  </video>
-</div>
+      <BackgroundVideo src={gardenVideo} poster={gardenPoster} />
+
+      {error && <p className="load-error" role="alert">{error}</p>}
 
       {/* Growth message */}
       <div className="growth-message">

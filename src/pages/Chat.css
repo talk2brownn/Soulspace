@@ -256,3 +256,10 @@
 @media (max-width: 600px) {
   .message-bubble { max-width: 85%; }
 }
+.support-hint {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  margin-top: 8px;
+}
+.support-hint a, .disclaimer a { color: #9fd3ff; }
+.message.assistant .crisis-card { margin-left: 4px; }

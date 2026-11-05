@@ -1,4 +1,6 @@
-import storiesVideo from '../Stories.mp4';
+import storiesVideo from '../media/Stories.mp4';
+import storiesPoster from '../media/Stories-poster.jpg';
+import BackgroundVideo from '../components/BackgroundVideo';
 import { useState } from 'react';
 import './Stories.css';
 
@@ -121,11 +123,7 @@ function Stories() {
         <p>A story just for you, based on how you feel right now 💙</p>
       </div>
 
-      <div className="video-background">
-  <video autoPlay loop muted playsInline>
-    <source src={storiesVideo} type="video/mp4" />
-  </video>
-</div>
+      <BackgroundVideo src={storiesVideo} poster={storiesPoster} />
 
       <div className="stories-content">
         <div className="mood-selector">

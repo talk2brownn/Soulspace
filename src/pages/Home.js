@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import './Home.css';
-import oceanVideo from '../Ocean.mp4';
+import oceanVideo from '../media/Ocean.mp4';
+import oceanPoster from '../media/Ocean-poster.jpg';
+import BackgroundVideo from '../components/BackgroundVideo';
+import CrisisCard from '../components/CrisisCard';
+import { listMoods, saveMood as storeMood } from '../lib/store';
+import { detectCrisis } from '../lib/safety';
+import { toDay } from '../lib/dates';
 
 
 const moods = [
@@ -19,37 +25,48 @@ function Home() {
   const [note, setNote] = useState('');
   const [saved, setSaved] = useState(false);
   const [todaysMood, setTodaysMood] = useState(null);
+  const [showSupport, setShowSupport] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const today = new Date().toDateString();
-    const savedMood = localStorage.getItem(`mood-${today}`);
-    if (savedMood) {
-      setTodaysMood(JSON.parse(savedMood));
-    }
+    let active = true;
+    listMoods()
+      .then((moods) => {
+        if (!active) return;
+        const today = moods.find((m) => m.day === toDay());
+        if (today) setTodaysMood(today);
+      })
+      .catch(() => active && setError("We couldn't load today's check-in. Check your connection."));
+    return () => {
+      active = false;
+    };
   }, []);
 
-  function saveMood() {
-    if (!selectedMood) return;
-    const today = new Date().toDateString();
-    const moodEntry = {
-      mood: selectedMood,
-      note: note,
-      date: today,
-      time: new Date().toLocaleTimeString()
-    };
-    localStorage.setItem(`mood-${today}`, JSON.stringify(moodEntry));
-
-    const history = JSON.parse(localStorage.getItem('mood-history') || '[]');
-    history.push(moodEntry);
-    localStorage.setItem('mood-history', JSON.stringify(history));
-
-    setTodaysMood(moodEntry);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  async function saveMood() {
+    if (!selectedMood || busy) return;
+    setBusy(true);
+    setError('');
+    try {
+      const entry = await storeMood({ mood: selectedMood, note });
+      setShowSupport(detectCrisis(note));
+      setTodaysMood(entry);
+      setSaved(true);
+      setNote('');
+      setSelectedMood(null);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setError("Your mood didn't save. Please check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
   }
 
+  // Keep today's mood theme on screen after saving.
+  const themeMood = selectedMood || todaysMood?.mood || null;
+
   function getMoodParticles() {
-    if (!selectedMood) {
+    if (!themeMood) {
       return Array.from({ length: 50 }, (_, i) => (
         <div
           key={i}
@@ -66,7 +83,7 @@ function Home() {
       ));
     }
 
-    switch(selectedMood.ocean) {
+    switch (themeMood.ocean) {
       case 'happy':
         return Array.from({ length: 30 }, (_, i) => (
           <div key={i} className="firefly" style={{
@@ -156,13 +173,9 @@ function Home() {
   }
 
   return (
-    <div className={`home ${selectedMood ? selectedMood.ocean : 'default'}`}>
+    <div className={`home ${themeMood ? themeMood.ocean : 'default'}`}>
 
-  <div className="video-background">
-  <video autoPlay muted loop playsInline>
-    <source src={oceanVideo} type="video/mp4" />
-  </video>
-</div>
+      <BackgroundVideo src={oceanVideo} poster={oceanPoster} />
 
       {/* Mood Particles */}
 <div className="particles-container">
@@ -207,20 +220,23 @@ function Home() {
               onChange={(e) => setNote(e.target.value)}
               rows={3}
             />
-            <button className="save-btn" onClick={saveMood}>
-              Save My Mood 💙
+            <button className="save-btn" onClick={saveMood} disabled={busy}>
+              {busy ? 'Saving…' : 'Save My Mood 💙'}
             </button>
-            {saved && <p className="saved-msg">✅ Mood saved! Keep going, you're doing great!</p>}
           </div>
         )}
+
+        {error && <p className="load-error" role="alert">{error}</p>}
+        {saved && <p className="saved-msg">✅ Mood saved! Keep going, you're doing great!</p>}
+        {showSupport && <CrisisCard compact />}
 
         {/* Today's mood display */}
         {todaysMood && !selectedMood && (
           <div className="todays-mood">
             <h3>Today's Check-in</h3>
-            <p>{todaysMood.mood.emoji} You felt <strong>{todaysMood.mood.label}</strong> at {todaysMood.time}</p>
+            <p>{todaysMood.mood.emoji} You felt <strong>{todaysMood.mood.label}</strong>{todaysMood.time ? ` at ${todaysMood.time}` : ''}</p>
             {todaysMood.note && <p className="mood-note-display">"{todaysMood.note}"</p>}
-            <button className="update-btn" onClick={() => setTodaysMood(null)}>
+            <button className="update-btn" onClick={() => { setTodaysMood(null); setShowSupport(false); }}>
               Update Mood
             </button>
           </div>

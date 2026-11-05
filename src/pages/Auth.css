@@ -1,0 +1,41 @@
+.auth {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(circle at 30% 10%, #1b3b73 0%, #050b1c 65%);
+  color: #eef4ff;
+}
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(8, 16, 36, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 32px 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+.auth-logo { font-size: 2.4rem; }
+.auth-card h1 { margin: 8px 0; font-size: 1.5rem; }
+.auth-sub { opacity: 0.8; font-size: 0.92rem; line-height: 1.5; margin-bottom: 20px; }
+.auth-tabs { display: flex; background: rgba(255, 255, 255, 0.06); border-radius: 14px; padding: 4px; margin-bottom: 18px; }
+.auth-tabs button { flex: 1; border: 0; background: transparent; color: inherit; padding: 10px; border-radius: 10px; cursor: pointer; font: inherit; opacity: 0.75; }
+.auth-tabs button.active { background: rgba(124, 196, 255, 0.2); opacity: 1; font-weight: 600; }
+.auth-form { display: flex; flex-direction: column; gap: 14px; text-align: left; }
+.auth-form label { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; }
+.auth-form input { padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.18); background: rgba(255, 255, 255, 0.06); color: #fff; font: inherit; }
+.auth-form input:focus { outline: 2px solid #7cc4ff; outline-offset: 1px; }
+.auth-submit { margin-top: 4px; padding: 12px; border: 0; border-radius: 12px; background: linear-gradient(135deg, #7cc4ff, #9b8cff); color: #04122b; font-weight: 700; font: inherit; cursor: pointer; }
+.auth-submit:disabled { opacity: 0.6; cursor: wait; }
+.auth-link { background: none; border: 0; color: #9fd3ff; cursor: pointer; font: inherit; font-size: 0.85rem; }
+.auth-error { color: #ffb4b4; font-size: 0.85rem; margin: 0; }
+.auth-message { color: #b8f5d0; font-size: 0.85rem; margin: 0; }
+.auth-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0 14px; opacity: 0.5; font-size: 0.8rem; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255, 255, 255, 0.3); }
+.auth-guest { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.25); background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.auth-guest:hover { background: rgba(255, 255, 255, 0.06); }
+.auth-fine { font-size: 0.78rem; opacity: 0.6; margin-top: 12px; line-height: 1.4; }

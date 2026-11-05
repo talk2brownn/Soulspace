@@ -11,7 +11,8 @@ A mental wellness app built as a safe space to check in, reflect, and build heal
 - **Mood check-ins** — log how you're feeling with a calm, ocean-animated home screen
 - **Journal** — a private space to write and reflect
 - **Habit battles** — gamified habit tracking that turns consistency into a game
-- **AI companion chat** — a therapeutic-style chat companion for support between check-ins
+- **Support companion chat** — a guided chat with pre-written supportive replies (not AI, not a therapist). Crisis language is detected first and always answered with real helpline information
+- **Get help page** — verified crisis lines, reachable from every screen, signed in or not
 - **Growth garden** — a visual representation of your progress that grows as you build habits
 - **Weekly reports** — a summary of mood trends and habit progress over time
 
@@ -19,7 +20,9 @@ A mental wellness app built as a safe space to check in, reflect, and build heal
 
 - [React](https://react.dev/) (Create React App)
 - [React Router](https://reactrouter.com/) for client-side navigation between Mood, Journal, Habits, Stories, AI Chat, Garden, and Report views
-- `localStorage` for persisting mood logs, journal entries, and habit progress on-device (no backend required)
+- [Supabase](https://supabase.com/) (PostgreSQL + Auth) for accounts and synced data, protected by Row Level Security so each person can only read their own rows
+- `localStorage` fallback: "Continue without an account" keeps everything on the device, and earlier entries are copied into your account when you sign up
+- Jest + React Testing Library tests for crisis detection, streak logic and the chat safety flow
 
 ## Running it locally
 
@@ -30,7 +33,25 @@ npm install
 npm start
 ```
 
-The app will open at `http://localhost:3000`. All data is stored locally in your browser via `localStorage` — nothing leaves your machine.
+The app will open at `http://localhost:3000`. Without Supabase keys it runs in device-only mode (everything stays in your browser).
+
+### Connecting Supabase (accounts + sync)
+
+1. Create a project at [supabase.com](https://supabase.com/).
+2. In **SQL Editor**, paste and run [`supabase/schema.sql`](supabase/schema.sql). It creates the tables and turns on Row Level Security.
+3. Copy `.env.example` to `.env` and fill in your project URL and **anon** key (Project Settings → API). Never use the `service_role` key in the app.
+4. In **Authentication → URL Configuration**, set the Site URL to your live site (and add `http://localhost:3000` for local testing).
+5. Restart `npm start`.
+
+### Tests
+
+```bash
+npm test
+```
+
+### Deploying to Netlify
+
+`public/_redirects` makes page refreshes on routes like `/journal` work. Add `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_ANON_KEY` under Site configuration → Environment variables, then redeploy.
 
 ## Author
 
