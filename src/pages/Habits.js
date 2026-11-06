@@ -2,24 +2,10 @@ import { useState, useEffect, useMemo } from 'react';
 import './Habits.css';
 import { listHabitLog, setHabitDone } from '../lib/store';
 import { toDay, computeStreak } from '../lib/dates';
+import { BAD_HABITS, GOOD_HABITS } from '../lib/habits';
 
-const badHabits = [
-  { id: 1, name: 'Smoking', icon: '🚬', difficulty: 'Hard' },
-  { id: 2, name: 'Excessive Phone Use', icon: '📱', difficulty: 'Medium' },
-  { id: 3, name: 'Overeating', icon: '🍔', difficulty: 'Medium' },
-  { id: 4, name: 'Procrastinating', icon: '⏰', difficulty: 'Hard' },
-  { id: 5, name: 'Negative Self Talk', icon: '💭', difficulty: 'Hard' },
-  { id: 6, name: 'Skipping Sleep', icon: '😴', difficulty: 'Medium' },
-];
-
-const goodHabits = [
-  { id: 7, name: 'Exercise', icon: '💪', difficulty: 'Medium' },
-  { id: 8, name: 'Reading', icon: '📚', difficulty: 'Easy' },
-  { id: 9, name: 'Meditation', icon: '🧘', difficulty: 'Easy' },
-  { id: 10, name: 'Drinking Water', icon: '💧', difficulty: 'Easy' },
-  { id: 11, name: 'Journaling', icon: '📝', difficulty: 'Easy' },
-  { id: 12, name: 'Gratitude', icon: '🙏', difficulty: 'Easy' },
-];
+const badHabits = BAD_HABITS;
+const goodHabits = GOOD_HABITS;
 
 function Habits() {
   // log: [{ habitId, day: 'YYYY-MM-DD' }]

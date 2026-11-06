@@ -7,18 +7,11 @@ import CrisisCard from '../components/CrisisCard';
 import { listMoods, saveMood as storeMood } from '../lib/store';
 import { detectCrisis } from '../lib/safety';
 import { toDay } from '../lib/dates';
+import { MOODS } from '../lib/moods';
 
 
-const moods = [
-  { emoji: '😊', label: 'Happy', color: '#FFD700', ocean: 'happy' },
-  { emoji: '😔', label: 'Sad', color: '#4A90D9', ocean: 'sad' },
-  { emoji: '😰', label: 'Anxious', color: '#7B68EE', ocean: 'anxious' },
-  { emoji: '😤', label: 'Angry', color: '#FF4500', ocean: 'angry' },
-  { emoji: '😴', label: 'Tired', color: '#708090', ocean: 'tired' },
-  { emoji: '🥰', label: 'Grateful', color: '#FF69B4', ocean: 'grateful' },
-  { emoji: '😌', label: 'Peaceful', color: '#20B2AA', ocean: 'peaceful' },
-  { emoji: '🤗', label: 'Excited', color: '#FF8C00', ocean: 'excited' },
-];
+// Shared with the Journal and Report, so moods stay consistent everywhere.
+const moods = MOODS;
 
 function Home() {
   const [selectedMood, setSelectedMood] = useState(null);

@@ -103,54 +103,103 @@ export async function saveMood({ mood, note }) {
 }
 
 // ---------- journal ----------
+// Entry shape used by the pages:
+// { id, title, content, mood: { label, emoji } | null, createdAt (ISO), date, time }
+const displayDate = (iso) => new Date(iso).toLocaleDateString();
+const displayTime = (iso) =>
+  new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+function normalizeLocalEntry(e) {
+  // Older entries have no createdAt: their id is the save timestamp.
+  let createdAt = e.createdAt;
+  if (!createdAt) {
+    const fromId = new Date(Number(e.id));
+    const fromText = new Date(`${e.date} ${e.time}`);
+    createdAt = !Number.isNaN(fromId.getTime()) && Number(e.id) > 1e12
+      ? fromId.toISOString()
+      : !Number.isNaN(fromText.getTime())
+        ? fromText.toISOString()
+        : new Date().toISOString();
+  }
+  return {
+    id: String(e.id),
+    title: e.title || 'Untitled Entry',
+    content: e.content || '',
+    mood: e.mood || null,
+    createdAt,
+    date: displayDate(createdAt),
+    time: displayTime(createdAt),
+  };
+}
+
+function fromCloudRow(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    content: row.content,
+    mood: row.mood_label ? { label: row.mood_label, emoji: row.mood_emoji } : null,
+    createdAt: row.created_at,
+    date: displayDate(row.created_at),
+    time: displayTime(row.created_at),
+  };
+}
+
 export async function listJournal() {
   if (!inCloud()) {
-    return readJSON('journal-entries', []).map((e) => ({ ...e, id: String(e.id) }));
+    return readJSON('journal-entries', [])
+      .map(normalizeLocalEntry)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
   const { data, error } = await supabase
     .from('journal_entries')
-    .select('id, title, content, created_at')
+    .select('id, title, content, mood_label, mood_emoji, created_at')
     .order('created_at', { ascending: false });
   if (error) throw error;
-  return data.map((row) => {
-    const d = new Date(row.created_at);
-    return {
-      id: row.id,
-      title: row.title,
-      content: row.content,
-      date: d.toLocaleDateString(),
-      time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-  });
+  return data.map(fromCloudRow);
 }
 
-export async function addJournal({ title, content }) {
-  const now = new Date();
+export async function addJournal({ title, content, mood = null }) {
   if (!inCloud()) {
-    const entry = {
-      id: String(now.getTime()),
-      title,
-      content,
-      date: now.toLocaleDateString(),
-      time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
+    const createdAt = new Date().toISOString();
+    const entry = normalizeLocalEntry({ id: String(Date.now()), title, content, mood, createdAt });
     writeJSON('journal-entries', [entry, ...readJSON('journal-entries', [])]);
     return entry;
   }
   const { data, error } = await supabase
     .from('journal_entries')
-    .insert({ user_id: cloudUserId, title, content })
-    .select('id, created_at')
+    .insert({
+      user_id: cloudUserId,
+      title,
+      content,
+      mood_label: mood?.label ?? null,
+      mood_emoji: mood?.emoji ?? null,
+    })
+    .select('id, title, content, mood_label, mood_emoji, created_at')
     .single();
   if (error) throw error;
-  const d = new Date(data.created_at);
-  return {
-    id: data.id,
-    title,
-    content,
-    date: d.toLocaleDateString(),
-    time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-  };
+  return fromCloudRow(data);
+}
+
+export async function updateJournal(id, { title, content, mood = null }) {
+  if (!inCloud()) {
+    const list = readJSON('journal-entries', []);
+    let updated = null;
+    const next = list.map((e) => {
+      if (String(e.id) !== String(id)) return e;
+      updated = normalizeLocalEntry({ ...normalizeLocalEntry(e), title, content, mood });
+      return updated;
+    });
+    writeJSON('journal-entries', next);
+    return updated;
+  }
+  const { data, error } = await supabase
+    .from('journal_entries')
+    .update({ title, content, mood_label: mood?.label ?? null, mood_emoji: mood?.emoji ?? null })
+    .eq('id', id)
+    .select('id, title, content, mood_label, mood_emoji, created_at')
+    .single();
+  if (error) throw error;
+  return fromCloudRow(data);
 }
 
 export async function deleteJournal(id) {
@@ -205,7 +254,7 @@ export async function migrateLocalToCloud(userId) {
   if (localStorage.getItem(flag)) return;
 
   const moods = readLocalMoods();
-  const journal = readJSON('journal-entries', []);
+  const journal = readJSON('journal-entries', []).map(normalizeLocalEntry);
   const habits = readLocalHabitLog();
 
   if (moods.length) {
@@ -225,15 +274,14 @@ export async function migrateLocalToCloud(userId) {
   }
   if (journal.length) {
     const { error } = await supabase.from('journal_entries').insert(
-      journal.map((e) => {
-        const created = new Date(`${e.date} ${e.time}`);
-        return {
-          user_id: userId,
-          title: e.title || 'Untitled Entry',
-          content: e.content,
-          ...(Number.isNaN(created.getTime()) ? {} : { created_at: created.toISOString() }),
-        };
-      })
+      journal.map((e) => ({
+        user_id: userId,
+        title: e.title,
+        content: e.content,
+        mood_label: e.mood?.label ?? null,
+        mood_emoji: e.mood?.emoji ?? null,
+        created_at: e.createdAt,
+      }))
     );
     if (error) throw error;
   }

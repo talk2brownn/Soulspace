@@ -55,3 +55,7 @@ begin
     execute format('create policy "own rows: delete" on public.%I for delete to authenticated using (auth.uid() = user_id)', t);
   end loop;
 end $$;
+
+-- v2: mood tags on journal entries (safe to run more than once).
+alter table public.journal_entries add column if not exists mood_label text;
+alter table public.journal_entries add column if not exists mood_emoji text;
