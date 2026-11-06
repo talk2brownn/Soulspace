@@ -1,0 +1,51 @@
+/* Shared rules for every page's background video.
+   Each page still sets its own video opacity in its own CSS file. */
+.video-background video,
+.video-background .video-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.6s ease, opacity 0.6s ease;
+}
+
+/* The still image is only a fallback for reduced motion (see index.css). */
+.video-background .video-poster { display: none; }
+
+/* A soft dark gradient on top of the video so text always has contrast. */
+.video-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(5, 8, 20, 0.15) 0%, rgba(5, 8, 20, 0.55) 100%);
+  transition: background 0.6s ease;
+}
+
+/* Writing mode: the video keeps playing, but softer, slower and out of focus. */
+.video-background.is-focused video {
+  filter: blur(6px) brightness(0.55) saturate(0.8);
+}
+.video-background.is-focused .video-scrim {
+  background: rgba(5, 8, 20, 0.45);
+}
+
+/* Page content must sit ABOVE the fixed video. Without this, anything after
+   the video in the page is painted underneath it, and only "appears" when
+   hovering (because :hover's transform lifts it onto its own layer). */
+.journal > .video-background ~ *:not(.entry-modal-overlay),
+.report > .video-background ~ *,
+.stories > .video-background ~ *,
+.garden > .video-background ~ * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Emoji inside gradient headings: keep their real colours instead of
+   turning into a solid gradient block. */
+.h1-emoji {
+  -webkit-text-fill-color: initial;
+  margin-right: 0.3em;
+}
+
+/* Home has its own mood lighting, so it skips the dark scrim. */
+.home .video-scrim { display: none; }

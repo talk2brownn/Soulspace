@@ -14,6 +14,8 @@ function Journal() {
   const [saved, setSaved] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [showSupport, setShowSupport] = useState(false);
+  // True while the title or entry box has focus: softens the video.
+  const [writing, setWriting] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -60,11 +62,11 @@ function Journal() {
   return (
     <div className="journal">
       <div className="journal-header">
-        <h1>📝 My Journal</h1>
+        <h1><span className="h1-emoji" aria-hidden="true">📝</span>My Journal</h1>
         <p>Your safe space to express yourself freely</p>
       </div>
 
-      <BackgroundVideo src={journalVideo} poster={journalPoster} />
+      <BackgroundVideo src={journalVideo} poster={journalPoster} focused={writing} />
 
       <div className="journal-layout">
         {/* Write new entry */}
@@ -76,6 +78,8 @@ function Journal() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="title-input"
+            onFocus={() => setWriting(true)}
+            onBlur={() => setWriting(false)}
           />
           <textarea
             placeholder="What's on your mind today? Write freely, no judgement here... 💙"
@@ -83,6 +87,8 @@ function Journal() {
             onChange={(e) => setEntry(e.target.value)}
             rows={10}
             className="entry-input"
+            onFocus={() => setWriting(true)}
+            onBlur={() => setWriting(false)}
           />
           <button className="save-entry-btn" onClick={saveEntry} disabled={busy}>
             {busy ? 'Saving…' : 'Save Entry 💙'}

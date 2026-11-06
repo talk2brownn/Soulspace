@@ -67,7 +67,7 @@ function Report() {
   return (
     <div className="report">
       <div className="report-header">
-        <h1>📊 Weekly Soul Report</h1>
+        <h1><span className="h1-emoji" aria-hidden="true">📊</span>Weekly Soul Report</h1>
         <p>Your journey in numbers and insights 💙</p>
       </div>
 

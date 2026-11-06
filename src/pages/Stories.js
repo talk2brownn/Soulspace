@@ -119,7 +119,7 @@ function Stories() {
   return (
     <div className="stories">
       <div className="stories-header">
-        <h1>📖 Mood Stories</h1>
+        <h1><span className="h1-emoji" aria-hidden="true">📖</span>Mood Stories</h1>
         <p>A story just for you, based on how you feel right now 💙</p>
       </div>
 

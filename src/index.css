@@ -16,6 +16,7 @@ code {
    background video (the poster image shows instead) and no animations. */
 @media (prefers-reduced-motion: reduce) {
   .video-background video { display: none; }
+  .video-background .video-poster { display: block; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
